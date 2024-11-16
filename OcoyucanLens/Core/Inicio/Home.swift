@@ -9,7 +9,7 @@ import SwiftUI
 
 struct Home: View {
     let plant: Plant
-    @Environment(\.presentationMode) var presentationMode
+    @State private var showProfile = false
 
     var body: some View {
         NavigationView{
@@ -26,12 +26,17 @@ struct Home: View {
                         .clipShape(Circle())
                         .padding(.trailing, 78)
 
-                    NavigationLink(destination: MyProfile()) {
+                    Button(action: {
+                        showProfile = true
+                    }) {
                         Image(systemName: "person.crop.circle")
                             .resizable()
                             .frame(width: 30, height: 30)
                             .foregroundColor(Color(Colors.lightGreen))
                             .padding(.trailing, 30)
+                    }
+                    .fullScreenCover(isPresented: $showProfile) {
+                        MyProfile()
                     }
                 }
                 .padding(.top, 10)

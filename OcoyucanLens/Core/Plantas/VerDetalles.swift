@@ -14,7 +14,7 @@ struct VerDetalles: View {
         NavigationView {
             ZStack(alignment: .top) {
                 Color(Colors.mainGreen)
-                    .ignoresSafeArea(edges: [.top, .leading, .trailing])
+                    .ignoresSafeArea()
 
                 VStack {
                     ImagesCarousel(plant: plant)
@@ -112,8 +112,6 @@ struct VerDetalles: View {
                 }
             }
         }
-        .navigationBarBackButtonHidden(true)
-        .toolbar(.hidden, for: .tabBar)
     }
 }
 
@@ -122,3 +120,4 @@ struct VerDetalles_Previews: PreviewProvider {
         VerDetalles(plant: Plant.example)
     }
 }
+

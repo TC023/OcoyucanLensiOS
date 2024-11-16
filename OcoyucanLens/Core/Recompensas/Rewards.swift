@@ -15,30 +15,31 @@ struct Rewards: View{
     
     var body: some View {
         NavigationView {
-            ZStack {
+            ZStack(alignment: .topLeading) {
                 Color(Colors.mainGreen)
                     .ignoresSafeArea(edges:[.top,.leading,.trailing])
-                ScrollView {
-                    
-                    VStack (alignment:.leading){
-                        HStack{
-                            Text("Recompensas")
-                                .font(TextStyles.title)
-                                .foregroundColor(Colors.lightGreen)
-                            Spacer().frame(width: 135)
-                            CircularSliderView(user_point: 0.75)
-                        }
-                        LazyVGrid(columns: columns, spacing : 20) {
-                            ForEach(0 ... 4, id: \.self) { value in
-                                RewardsModel(reward: Reward.example)
+                VStack(spacing: 25){
+                    Spacer()
+                        .frame(height: 10)
+                    HStack{
+                        Text("Recompensas")
+                            .font(TextStyles.title)
+                            .foregroundColor(Colors.lightGreen)
+                        Spacer().frame(width: 135)
+                        CircularSliderView(user_point: 0.75)
+                    }.padding(.horizontal, 15) 
+                    ScrollView {
+                        VStack {
+                            LazyVGrid(columns: columns, spacing : 20) {
+                                ForEach(0 ... 4, id: \.self) { value in
+                                    RewardsModel(reward: Reward.example)
+                                }
                             }
                         }
                     }
-                    .padding(15)
+                    
                 }
-                
             }
-
         }
     }
 }

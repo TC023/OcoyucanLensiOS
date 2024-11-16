@@ -41,6 +41,7 @@ struct MainTabView: View {
                 }
         }
         .tint(Color(Colors.mainGreen))
+        .foregroundColor(/*@START_MENU_TOKEN@*/.blue/*@END_MENU_TOKEN@*/)
         
     }
     

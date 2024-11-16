@@ -9,7 +9,7 @@ import SwiftUI
 
 struct Achievements_flora: View {
 
-
+    @Environment(\.presentationMode) var presentationMode
     var body: some View {
         NavigationView {
             ZStack{
@@ -17,17 +17,25 @@ struct Achievements_flora: View {
                     .ignoresSafeArea()
 
                 VStack(alignment: .leading) {
+                    Spacer()
+                        .frame(height: 30)
                     HStack {
                         Text("Nivel de flora")
                             .font(TextStyles.title)
                             .foregroundColor(Colors.lightGreen)
                     }.padding(.horizontal, 20)
+                    
                 
                     
                     VStack{
                         Achievement_model(achievemnt: Achievement.bronze_flora)
-                            .frame(maxWidth: .infinity, alignment: .center)
+                            
 
+                    }
+                    .toolbar{
+                        ToolbarItem(placement: .navigationBarLeading){
+                            CustomButton(action:{ presentationMode.wrappedValue.dismiss()}, color: Colors.lightGreen)
+                        }
                     }
                 }
             }
@@ -40,3 +48,4 @@ struct Achievements_flora_Previews: PreviewProvider {
         Achievements_flora()
     }
 }
+

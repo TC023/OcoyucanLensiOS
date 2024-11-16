@@ -11,34 +11,41 @@ struct DetailView: View {
     var onDismiss: () -> Void
 
     var body: some View {
-        VStack {
-            // Barra superior con el botón de retroceso
-            HStack {
-                Button(action: {
-                    onDismiss() // Ejecuta la acción de cierre
-                }) {
-                    Image(systemName: "arrow.left")
-                        .font(.title)
-                        .foregroundColor(.blue)
+            VStack {
+                // Barra superior con el botón de retroceso
+                HStack {
+                    Button(action: {
+                        onDismiss() // Ejecuta la acción de cierre
+                    }) {
+                        Image(systemName: "chevron.compact.left")
+                            .foregroundColor(Colors.lightGreen)
+                    }
+                    Spacer()
                 }
+                .padding()
+                
+                Spacer()
+                
+                // Muestra el resultado de la identificación
+                Text(result)
+                    .font(.headline)
+                    .padding()
+                
                 Spacer()
             }
             .padding()
+            .background(Colors.mainGreen)
+            .cornerRadius(15)
+            .shadow(radius: 10)
+            .padding() // Espacio adicional alrededor de la vista
+        
+    }
+}
 
-            Spacer()
-
-            // Muestra el resultado de la identificación
-            Text(result)
-                .font(.headline)
-                .padding()
-
-            Spacer()
+struct DetailView_Previews: PreviewProvider {
+    static var previews: some View {
+        DetailView(result: "hola") {
         }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(15)
-        .shadow(radius: 10)
-        .padding() // Espacio adicional alrededor de la vista
     }
 }
 

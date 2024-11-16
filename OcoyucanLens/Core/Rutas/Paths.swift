@@ -7,70 +7,121 @@
 
 import SwiftUI
 import MapKit
+import CoreLocation
 
-struct Paths: View{
-    @State private var cameraPosition: MapCameraPosition = .automatic
-    var body: some View{
-        NavigationView{
-        ZStack{
-            Map(position: $cameraPosition){
-                Marker("Ocoyucan Vida y conservación A.C.", coordinate: CLLocationCoordinate2D(latitude: 18.977363, longitude: -98.297811))
-                    .tint(Color(Colors.mainGreen))
-                
-            }
-                .onAppear{
-                    let SantaClaraOcoyucan = CLLocationCoordinate2D(latitude: 18.976661, longitude: -98.302223)
-                    let SantaClaraOcoyucanSpan = MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
-                    let SantaClaraOcoyucanRegion = MKCoordinateRegion(center: SantaClaraOcoyucan, span: SantaClaraOcoyucanSpan)
-                    cameraPosition = .region(SantaClaraOcoyucanRegion)
+struct Paths: View {
+    @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
+    @StateObject private var locationManager = LocationManager()
+    @State private var isTracking = false // Estado para indicar si se está trazando la ruta
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                // Mapa con la ruta dibujada
+                Map(position: $position) {
+                    if !locationManager.routeCoordinates.isEmpty {
+                        // Uso correcto de MapPolyline
+                        MapPolyline(coordinates: locationManager.routeCoordinates)
+                            .stroke(Colors.mainGreen, lineWidth: 7)
+                    }
                 }
-            VStack {
-                Spacer()
-                RoundedRectangle(cornerRadius: 20)
-                    .frame(width: 400, height: 350)
-                    .offset(y:50)
-                    .foregroundColor(Color(Colors.mainGreen))
-                    .shadow(radius: 9)
-                    .overlay(
-                        VStack(alignment: .leading, spacing: 40) {
-                            Spacer()
-                                
-                            
-                            HStack(spacing:105){
-                                Text("Rutas en Ocoyucan")
-                                    .font(TextStyles.title)
-                                    .foregroundColor(Colors.lightGreen)
-                                Image(systemName: "square.and.arrow.up")
-                                    .imageScale(.medium)
-                                    .foregroundColor(Colors.lightGreen)
-                            }
-                            Text("Estas rutas son muy buenas, las hacene en un promedio de 30 minutos sirven para coservar el cerro de Ocoyucan")
-                                .font(TextStyles.body)
-                                .foregroundColor(Colors.lightGreen)
-                            
-                            VStack {
+                .mapControls {
+                    MapUserLocationButton()
+                }
+                .onAppear {
+                    locationManager.requestAuthorization()
+                }
+                
+                VStack {
+                    Spacer()
+                    // Caja inferior
+                    RoundedRectangle(cornerRadius: 20)
+                        .frame(width: 400, height: 350)
+                        .offset(y: 50)
+                        .foregroundColor(Color(Colors.mainGreen))
+                        .shadow(radius: 9)
+                        .overlay(
+                            VStack(alignment: .leading, spacing: 30) {
                                 Spacer()
-                                NavigationLink(destination: Paths()) {
-                                    Text("Comenzar ruta")
-                                        .font(TextStyles.body)
-                                        .frame(width: 240, height: 45)
+                                    .frame(height: 10)
+                                HStack(spacing: 105) {
+                                    Text("Rutas en Ocoyucan")
+                                        .font(TextStyles.title)
                                         .foregroundColor(Colors.lightGreen)
-                                        .roundedBorder(borderColor: Colors.lightGreen, backgroundColor: Colors.mainGreen)
                                 }
-                                Spacer()
+                                Text("Estas rutas son muy buenas, las hacen en un promedio de 30 minutos sirven para conservar el cerro de Ocoyucan")
+                                    .font(TextStyles.body)
+                                    .foregroundColor(Colors.lightGreen)
+                                
+                                VStack {
+                                
+                                    Button(action: {
+                                        if isTracking {
+                                            locationManager.stopUpdatingLocation()
+                                        } else {
+                                            locationManager.startUpdatingLocation()
+                                        }
+                                        isTracking.toggle()
+                                    }) {
+                                        Text(isTracking ? "Detener ruta" : "Comenzar ruta")
+                                            .font(TextStyles.body)
+                                            .frame(width: 300, height: 60)
+                                            .foregroundColor(Colors.mainGreen)
+                                            .roundedBorder()
+                                    }
+                                    
+                                }
+                                .frame(maxWidth: .infinity)
                             }
-                            .frame(maxWidth: .infinity)
-                        }
                             .padding(20)
-                    )
+                        )
                 }
             }
         }
     }
 }
 
-struct Paths_Previews: PreviewProvider{
-    static var previews: some View{
+// MARK: - LocationManager
+class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
+    private let manager = CLLocationManager()
+    @Published var routeCoordinates: [CLLocationCoordinate2D] = []
+    
+    override init() {
+        super.init()
+        manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyBest
+    }
+    
+    func requestAuthorization() {
+        manager.requestWhenInUseAuthorization()
+    }
+    
+    func startUpdatingLocation() {
+        routeCoordinates.removeAll() // Reinicia la ruta
+        manager.startUpdatingLocation()
+    }
+    
+    func stopUpdatingLocation() {
+        manager.stopUpdatingLocation()
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let newLocation = locations.last else { return }
+        routeCoordinates.append(newLocation.coordinate)
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        if status == .authorizedWhenInUse || status == .authorizedAlways {
+            manager.startUpdatingLocation()
+        }
+    }
+}
+
+
+
+struct Paths_Previews: PreviewProvider {
+    static var previews: some View {
         Paths()
     }
 }
+

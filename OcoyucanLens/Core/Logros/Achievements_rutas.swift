@@ -9,7 +9,7 @@ import SwiftUI
 
 struct Achievements_rutas: View {
 
-
+    @Environment(\.presentationMode) var presentationMode
     var body: some View {
         NavigationView {
             ZStack{
@@ -17,6 +17,8 @@ struct Achievements_rutas: View {
                     .ignoresSafeArea()
 
                 VStack(alignment: .leading) {
+                    Spacer()
+                        .frame(height: 30)
                     HStack {
                         Text("Nivel de rutas")
                             .font(TextStyles.title)
@@ -29,6 +31,11 @@ struct Achievements_rutas: View {
                         Achievement_model(achievemnt: Achievement.gold_rutas)
                             
 
+                    }
+                    .toolbar{
+                        ToolbarItem(placement: .navigationBarLeading){
+                            CustomButton(action:{ presentationMode.wrappedValue.dismiss()}, color: Colors.lightGreen)
+                        }
                     }
                 }
             }

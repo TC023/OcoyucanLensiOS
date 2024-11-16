@@ -24,6 +24,7 @@ struct Achievement_model: View {
         VStack {
             VStack{
                 Divider()
+                    .overlay(Color(Colors.lightGreen))
             }.padding(.vertical, 35)
             VStack{
                 Circle()
@@ -41,8 +42,9 @@ struct Achievement_model: View {
             Text(achievemnt.name)
                 .font(TextStyles.body)
                 .foregroundStyle(Colors.lightGreen)
-            }.padding(.vertical, 50)
+            }.padding(.vertical, 70)
             Divider()
+                .overlay(Color(Colors.lightGreen))
             VStack(alignment: .center) {
                 HStack(alignment: .firstTextBaseline) {
                     Text("Descripción:")

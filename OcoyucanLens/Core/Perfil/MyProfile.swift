@@ -9,6 +9,9 @@ import SwiftUI
 
 struct MyProfile: View {
     @StateObject private var viewModel = UserViewModel()
+    @Environment(\.presentationMode) var presentationMode
+    @State private var showAch_Rutas = true
+    @State private var showAch_Flora = true
 
     var body: some View {
         NavigationView {
@@ -17,6 +20,7 @@ struct MyProfile: View {
                     .ignoresSafeArea()
                 
                 VStack {
+
                     Text("Mi perfil")
                         .font(TextStyles.title)
                         .foregroundColor(Colors.lightGreen)
@@ -47,14 +51,15 @@ struct MyProfile: View {
                         // Información adicional del usuario
                         SettingsRowView(imageName: "star.circle.fill", title: "250", description: "Puntos totales")
                         SettingsRowView(imageName: "trophy.fill", title: "2", description: "Insignias recolectadas")
-                        NavigationLink( destination: Achievements_flora()){
-                            VStack(spacing:5){
+                        
+                        NavigationLink(destination: Achievements_flora()) {
+                            VStack(spacing: 5) {
                                 Text("Nivel de flora")
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                       .offset(x: 55)
+                                    .offset(x: 55)
                                     .font(TextStyles.body)
                                     .foregroundColor(Colors.lightGreen)
-                                HStack{
+                                HStack {
                                     Image(systemName: "medal.fill")
                                         .font(TextStyles.body)
                                         .foregroundColor(Colors.mainGreen)
@@ -67,14 +72,15 @@ struct MyProfile: View {
                                 .roundedBorder()
                             }
                         }
-                        NavigationLink( destination: Achievements_rutas()){
-                            VStack(spacing:5){
+                    
+                        NavigationLink(destination: Achievements_rutas()){
+                            VStack(spacing: 5) {
                                 Text("Nivel de rutas")
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                       .offset(x: 55)
+                                    .offset(x: 55)
                                     .font(TextStyles.body)
                                     .foregroundColor(Colors.lightGreen)
-                                HStack{
+                                HStack {
                                     Image(systemName: "medal.fill")
                                         .font(TextStyles.body)
                                         .foregroundColor(Colors.mainGreen)
@@ -87,7 +93,6 @@ struct MyProfile: View {
                                 .roundedBorder()
                             }
                         }
-                        
                     } else {
                         Text("Cargando datos...")
                             .font(TextStyles.body)
@@ -116,19 +121,27 @@ struct MyProfile: View {
                             .foregroundColor(Colors.lightGreen)
                             .roundedBorder(borderColor: Colors.lightGreen, backgroundColor: Colors.mainGreen)
                     }
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            CustomButton(action: {
+                                presentationMode.wrappedValue.dismiss()
+                            }, color:Colors.lightGreen )
+                            
+                        }
+                    }
                 }
                 .padding()
             }
-            
-            .toolbar(.hidden, for: .tabBar)
         }
     }
 }
-struct MyProfile_Previews: PreviewProvider{
-    static var previews: some View{
+
+struct MyProfile_Previews: PreviewProvider {
+    static var previews: some View {
         MyProfile()
     }
 }
+
 
 
   

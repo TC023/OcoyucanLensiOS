@@ -9,11 +9,12 @@ import SwiftUI
 
 struct Listas: View {
     let plant: Plant
+    @State private var showDetails = false
     
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
-                .frame(width: 162, height: 200)
+                .frame(width: 162, height: 220)
                 .foregroundStyle(Color(Colors.lightGreen))
                 .shadow(radius: 9)
             
@@ -39,21 +40,22 @@ struct Listas: View {
                     }
                     .frame(maxWidth: CGFloat(130), alignment: .leading)
                     
-                    NavigationLink(destination: VerDetalles(plant: plant)) {
-
+                    Button(action: {showDetails = true }) {
                         Text("Ver detalles")
                             .font(TextStyles.small_body)
                             .frame(width: 140, height: 22)
                             .foregroundColor(Colors.mainGreen)
                             .roundedBorder(borderColor: Colors.mainGreen, backgroundColor: Colors.lightGreen)
-                            
+                    }
+                    .fullScreenCover(isPresented: $showDetails) {
+                        VerDetalles(plant: Plant.example)
                     }
                 }
             }
             
             ImageView(imageName: plant.images.first ?? "", width: 162, height: 115)
                 .clipShape(RoundedTopCorners(radius: 20, corners: [.topLeft, .topRight]))
-                .offset(y: -43)
+                .offset(y: -54)
         }
     }
 }

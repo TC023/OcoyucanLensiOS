@@ -92,10 +92,6 @@ struct PlantsList: View {
                 plants.append(plant)
             }
         }
-        
         return plants
     }
-
-
-
 }
