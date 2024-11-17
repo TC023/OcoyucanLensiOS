@@ -75,14 +75,14 @@ struct PlantsList: View {
             let columns = row.components(separatedBy: ",")
             if columns.count >= 13 { // Asegúrate de que haya suficientes columnas
                 // Extraer imágenes de las columnas
-                let images = [columns[10], columns[11], columns[12]].compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+                let images = [columns[11], columns[12], columns[13]].compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
                 
                 // Crear la instancia de `Plant`
                 let scientificName = "\(columns[4]) \(columns[5])" // Concatenar género y especie
                 let plant = Plant(
                     name: columns[9], // Nombre común
                     scientificName: scientificName,
-                    points: "0", // Por defecto
+                    points: columns[14], // Por defecto
                     images: images, // Arreglo de imágenes
                     order: columns[2], // Orden
                     family: columns[3], // Familia

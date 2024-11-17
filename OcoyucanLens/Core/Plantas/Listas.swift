@@ -34,9 +34,29 @@ struct Listas: View {
                             .foregroundStyle(Color(Colors.mainGreen))
                             .font(TextStyles.small_body)
                         
-                        Image(systemName: "star.circle.fill")
-                            .foregroundStyle(Color(Colors.mainGreen))
-                            .imageScale(.small)
+                        AsyncImage(url: URL(string: plant.images.first ?? "")) { phase in
+                            switch phase {
+                            case .empty:
+                                ProgressView() // Indicador de carga mientras se obtiene la imagen
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 162, height: 115)
+                                    .clipShape(RoundedTopCorners(radius: 20, corners: [.topLeft, .topRight]))
+                            case .failure:
+                                Image(systemName: "photo") // Imagen de marcador de posición
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 162, height: 115)
+                                    .clipShape(RoundedTopCorners(radius: 20, corners: [.topLeft, .topRight]))
+                                    .foregroundColor(.gray)
+                            @unknown default:
+                                EmptyView()	
+                            }
+                        }
+                        .offset(y: -43)
+
                     }
                     .frame(maxWidth: CGFloat(130), alignment: .leading)
                     
@@ -48,7 +68,7 @@ struct Listas: View {
                             .roundedBorder(borderColor: Colors.mainGreen, backgroundColor: Colors.lightGreen)
                     }
                     .fullScreenCover(isPresented: $showDetails) {
-                        VerDetalles(plant: Plant.example)
+                        VerDetalles(plant: plant)
                     }
                 }
             }
