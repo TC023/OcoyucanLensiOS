@@ -10,10 +10,10 @@ import SwiftUI
 struct MainTabView: View {
     var body: some View{
         TabView {
-            Paths()
+            Home(plant: Plant.example)
                 .tabItem {
-                    Image(systemName: "map")
-                    Text("Rutas")
+                    Image(systemName: "house")
+                    Text("Inicio")
                 }
             
             Rewards()
@@ -33,12 +33,12 @@ struct MainTabView: View {
                     Image(systemName: "leaf")
                     Text("Flora")
                 }
-            
-            Home(plant: Plant.example)
+            Paths()
                 .tabItem {
-                    Image(systemName: "house")
-                    Text("Inicio")
+                    Image(systemName: "map")
+                    Text("Rutas")
                 }
+            
         }
         .tint(Color(Colors.mainGreen))
         .foregroundColor(/*@START_MENU_TOKEN@*/.blue/*@END_MENU_TOKEN@*/)

@@ -8,7 +8,8 @@
 import Foundation
 import UIKit
 
-func identifyPlant(image: UIImage, completion: @escaping (Result<(String, String?), Error>) -> Void) {
+
+func identifyPlant(image: UIImage, completion: @escaping (Result<(String, String, String, String, [String], String), Error>) -> Void) {
     let baseUrl = "https://my-api.plantnet.org/v2/identify/all"
     let apiKey = "2b10swecBHR4jCIoBBGyF4eEA"
     let organ = "flower"
@@ -61,12 +62,18 @@ func identifyPlant(image: UIImage, completion: @escaping (Result<(String, String
                let results = jsonResponse["results"] as? [[String: Any]],
                let firstResult = results.first,
                let species = firstResult["species"] as? [String: Any],
-               let bestMatch = species["scientificNameWithoutAuthor"] as? String,
+               let scientificName = species["scientificName"] as? String,
+               let scientificNameAuthorship = species["scientificNameAuthorship"] as? String,
+               let family = species["family"] as? [String: Any],
+               let familyName = family["scientificName"] as? String,
+               let genus = species["genus"] as? [String: Any],
+               let genusName = genus["scientificName"] as? String,
+               let commonNames = species["commonNames"] as? [String],
                let images = firstResult["images"] as? [[String: Any]],
-               let imageUrl = images.first?["url"] as? [String: Any],
-               let imageLink = imageUrl["o"] as? String {
+               let firstImageUrl = images.first?["url"] as? [String: String],
+               let imageUrl = firstImageUrl["o"] {
                 
-                completion(.success((bestMatch ,imageLink)))
+                completion(.success((scientificName, scientificNameAuthorship, familyName, genusName, commonNames, imageUrl)))
             } else {
                 completion(.failure(NSError(domain: "Formato de respuesta no válido", code: 0, userInfo: nil)))
             }

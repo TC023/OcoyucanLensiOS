@@ -9,32 +9,37 @@ import SwiftUI
 
 struct ScannerView: View {
     @ObservedObject var viewModel = CameraViewModel()
-    
+
     @State private var isFocused = false
     @State private var isScaled = false
     @State private var focusLocation: CGPoint = .zero
     @State private var currentZoomFactor: CGFloat = 1.0
     @State private var isIdentificationInProgress = false
     @State private var showDetailView = false
-    @State private var imageUrl: String?
+
+    // Variables para los resultados de identificación
     @State private var plantName: String?
+    @State private var family: String?
+    @State private var genus: String?
+    @State private var commonNames: [String] = []
+    @State private var imageUrl: String?
 
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 Color(Colors.mainGreen)
-                    .ignoresSafeArea(edges:[.top,.leading,.trailing])
-                
-                VStack(spacing: 10)  {
+                    .ignoresSafeArea(edges: [.top, .leading, .trailing])
+
+                VStack(spacing: 10) {
                     Button(action: {
                         viewModel.switchFlash()
                     }, label: {
                         Image(systemName: viewModel.isFlashOn ? "bolt.fill" : "bolt.slash.fill")
-                            .font(.system(size: 20, weight: .medium, design: .default))
+                            .font(.system(size: 20, weight: .medium))
                             .shadow(radius: 9)
                     })
                     .foregroundColor(viewModel.isFlashOn ? Color(Colors.flashyellow) : Color(Colors.lightGreen))
-                    
+
                     ZStack {
                         CameraPreview(session: viewModel.session) { tapPoint in
                             isFocused = true
@@ -48,7 +53,7 @@ struct ScannerView: View {
                                 self.currentZoomFactor = min(max(self.currentZoomFactor, 0.5), 10)
                                 self.viewModel.zoom(with: currentZoomFactor)
                             })
-                        
+
                         if isFocused {
                             FocusView(position: $focusLocation)
                                 .scaleEffect(isScaled ? 0.8 : 1)
@@ -62,8 +67,7 @@ struct ScannerView: View {
                                     }
                                 }
                         }
-                        
-                        // Vista de progreso mientras se procesa la identificación
+
                         if isIdentificationInProgress {
                             Color(Colors.mainGreen)
                                 .opacity(0.8)
@@ -73,16 +77,17 @@ struct ScannerView: View {
                                 .scaleEffect(1.5)
                         }
                     }
-                    
+
                     HStack {
                         PhotoThumbnail(image: $viewModel.capturedImage)
-                            .offset(y:-6)
+                            .offset(y: -6)
                         Spacer()
                         CaptureButton {
-                            viewModel.captureImage()}
-                            .offset(y:-7)
+                            viewModel.captureImage()
+                        }
+                        .offset(y: -7)
                         Spacer()
-                        // Botón de Escaneo en el HStack
+
                         if viewModel.capturedImage != nil {
                             Button(action: {
                                 identifyCapturedPlant()
@@ -91,29 +96,33 @@ struct ScannerView: View {
                                     Image(systemName: "qrcode")
                                         .foregroundColor(Colors.lightGreen)
                                         .font(.system(size: 35, weight: .light))
-                                                                
+
                                     Text("Escanear flora")
                                         .font(.footnote)
                                         .foregroundColor(Colors.lightGreen)
                                 }
                                 .frame(width: 70, height: 75)
                                 .shadow(radius: 9)
-                                .offset(y:-6)
-                                
-
+                                .offset(y: -6)
                             }
                             .sheet(isPresented: $showDetailView) {
-                                DetailView(result: plantName ?? "Nombre desconocido", onDismiss: {
-                                    showDetailView = false
-                                })
+                                DetailView(
+                                    plantName: plantName ?? "Nombre desconocido",
+                                    family: family ?? "Desconocida",
+                                    genus: genus ?? "Desconocido",
+                                    commonNames: commonNames,
+                                    imageUrl: imageUrl ?? "",
+                                    onDismiss: {
+                                        showDetailView = false
+                                    }
+                                )
                             }
-                        }
-                        else {
+                        } else {
                             Rectangle()
                                 .frame(width: 70, height: 70)
                                 .foregroundColor(Colors.mainGreen)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
-                                .offset(y:-6)
+                                .offset(y: -6)
                         }
                     }
                     .padding(24)
@@ -128,47 +137,39 @@ struct ScannerView: View {
                     }
                 )
             }
-            .alert(isPresented: $viewModel.showSettingAlert) {
-                Alert(
-                    title: Text("Warning"),
-                    message: Text("Application doesn't have all permissions to use camera and microphone, please change privacy settings."),
-                    dismissButton: .default(Text("Go to settings"), action: {
-                        openSettings()
-                    })
-                )
-            }
             .onAppear {
                 viewModel.setupBindings()
                 viewModel.requestCameraPermission()
             }
         }
     }
-    
+
     func identifyCapturedPlant() {
         guard let capturedImage = viewModel.capturedImage else {
             viewModel.showAlertError = true
             return
         }
-        
-        // Mostrar el `ProgressView`
+
         isIdentificationInProgress = true
-        
-        // Llamada de identificación
+
         identifyPlant(image: capturedImage) { result in
             DispatchQueue.main.async {
                 isIdentificationInProgress = false
                 switch result {
-                case .success(let (bestMatch, imageUrl)):
-                    self.plantName = bestMatch  // Asignar el nombre de la planta desde la API
+                case .success(let (scientificName, authorship, family, genus, commonNames, imageUrl)):
+                    self.plantName = scientificName
+                    self.family = family
+                    self.genus = genus
+                    self.commonNames = commonNames
                     self.imageUrl = imageUrl
-                    self.showDetailView = true  // Mostrar `DetailView` al terminar
+                    self.showDetailView = true
                 case .failure:
                     viewModel.showAlertError = true
                 }
             }
         }
     }
-    
+
     func openSettings() {
         let settingsUrl = URL(string: UIApplication.openSettingsURLString)
         if let url = settingsUrl {
@@ -177,11 +178,9 @@ struct ScannerView: View {
     }
 }
 
-// Estructuras adicionales para los componentes usados en ScannerView
-
 struct PhotoThumbnail: View {
     @Binding var image: UIImage?
-    
+
     var body: some View {
         Group {
             if let image {
@@ -190,7 +189,6 @@ struct PhotoThumbnail: View {
                     .frame(width: 70, height: 70)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .shadow(radius: 9)
-                
             } else {
                 Rectangle()
                     .frame(width: 70, height: 70, alignment: .center)
@@ -204,7 +202,7 @@ struct PhotoThumbnail: View {
 
 struct CaptureButton: View {
     var action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             ZStack {
@@ -222,7 +220,7 @@ struct CaptureButton: View {
 
 struct FocusView: View {
     @Binding var position: CGPoint
-    
+
     var body: some View {
         Circle()
             .frame(width: 70, height: 70)
